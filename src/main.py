@@ -30,9 +30,11 @@ print(chat("User: Xin chào! Bot:", max_length=100))
 
 ##2. Define chatbot: ---------------
 def extract_first_new_assistant_reply(generated_text):
-  if "NEW: Assistant:" in generated_text:
-    reply = generated_text.split("NEW: Assistant:", 1)[1]
-    reply = reply.split("NEW: User:", 1)[0]
+  if "### RESPONSE: Assistant:" in generated_text:
+    reply = generated_text.split("### RESPONSE: Assistant:", 1)[1]
+    reply = reply.split("### ASKING: User:", 1)[0]
+    reply = reply.split("### CONTEXT: User:", 1)[0]
+    reply = reply.split("### ASKING: Assistant:", 1)[0]
     return reply.strip()
   return generated_text.strip()
 
@@ -42,14 +44,12 @@ def chatbot(msg, history):
   system_prompt = {
     "role": "system",
     "content": (
-      "Bạn là một trợ lý AI thông minh, biết suy luận logic và trả lời một cách hài hước, duyên dáng. "
-      "Hãy thêm chút hài hước nếu thích hợp, nhưng vẫn giữ nội dung chính xác. "
-      "Nếu không biết câu trả lời, cứ từ chối nhẹ nhàng chứ đừng bịa nhé!"
+      "### INSTRUCTION: Hãy trả lời thông minh, sâu sắc, hài hước, dí dỏm. Format markdown!"
     )
   }
 
   # Step 2.2: history (OpenAI style)
-  messages = [system_prompt]
+  messages = []; #messages = [system_prompt]
   for m in history[-3:]:
     if m["role"] in ("user", "assistant"):
       messages.append(m)
@@ -57,10 +57,10 @@ def chatbot(msg, history):
   # Step 2.3: prompt_text
   prompt_text = ""
   for m in messages:
-    prompt_text += f"CONTEXT: {m['role'].capitalize()}: {m['content']}\n"
+    prompt_text += f"### CONTEXT: {m['role'].capitalize()}: {m['content']}\n"
   # New message from user
-  prompt_text += f"NEW: {"user".capitalize()}: {msg}\n"
-  prompt_text += "NEW: Assistant:"
+  prompt_text += f"### ASKING: {"user".capitalize()}: {msg}\n"
+  prompt_text += "### RESPONSE: Assistant:"
 
   output = chat(
     prompt_text,
@@ -71,7 +71,7 @@ def chatbot(msg, history):
   log_response(msg, output)
 
   # Step 3.4: Return
-  generated_text = output[len(prompt_text) - len("NEW: Assistant:"):]
+  generated_text = output[len(prompt_text) - len("### RESPONSE: Assistant:"):]
   bot_reply = extract_first_new_assistant_reply(generated_text)
   return {"role": "assistant", "content": bot_reply}
 
