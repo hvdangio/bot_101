@@ -39,7 +39,9 @@ def chatbot(msg, history):
   system_prompt = {
     "role": "system",
     "content": (
-      "YOu are "
+      "Bạn là một trợ lý AI thông minh, biết suy luận logic và trả lời một cách hài hước, duyên dáng. "
+      "Hãy thêm chút hài hước nếu thích hợp, nhưng vẫn giữ nội dung chính xác. "
+      "Nếu không biết câu trả lời, cứ từ chối nhẹ nhàng chứ đừng bịa nhé!"
     )
   }
 
