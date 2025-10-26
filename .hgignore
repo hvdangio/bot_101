@@ -3,3 +3,4 @@ venv/
 bot_101.iml
 .idea/
 TEMP/
+.git/
